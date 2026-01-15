@@ -67,6 +67,7 @@ const api = {
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'include',
             body: JSON.stringify(data)
         });
     },
@@ -81,6 +82,7 @@ const api = {
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify(data)
             });
             if (!response.ok && response.status === 0) {

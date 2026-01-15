@@ -30,7 +30,33 @@ async function main() {
   });
 
   if (systemAdminRole) {
-    // Створення тестового адміністратора з зручними обліковими даними
+    // Створення адміністратора з надійним паролем
+    const adminPassword = process.env.ADMIN_PASSWORD || 'Tr4!n1ngS3cur3@2024';
+    const adminPasswordHash = await bcrypt.hash(adminPassword, 12);
+    
+    const admin = await prisma.user.upsert({
+      where: { email: 'admin@training.local' },
+      update: {
+        passwordHash: adminPasswordHash,
+        isActive: true
+      },
+      create: {
+        email: 'admin@training.local',
+        passwordHash: adminPasswordHash,
+        roleId: systemAdminRole.id,
+        isActive: true
+      }
+    });
+    
+    console.log('\n✅ ============================================');
+    console.log('✅ Адміністратор створено/оновлено!');
+    console.log('✅ ============================================');
+    console.log('📧 Email:    admin@training.local');
+    console.log('🔑 Пароль:   ' + adminPassword);
+    console.log('👤 Роль:     SystemAdmin (повний доступ)');
+    console.log('✅ ============================================\n');
+    
+    // Тестовий адмін для розробки
     const testAdminPassword = 'Admin123!';
     const testAdminPasswordHash = await bcrypt.hash(testAdminPassword, 10);
     
@@ -44,34 +70,6 @@ async function main() {
         isActive: true
       }
     });
-    
-    console.log('\n✅ ============================================');
-    console.log('✅ Тестовий адміністратор створено!');
-    console.log('✅ ============================================');
-    console.log('📧 Email:    admin@test.local');
-    console.log('🔑 Пароль:   Admin123!');
-    console.log('👤 Роль:     SystemAdmin (повний доступ)');
-    console.log('✅ ============================================');
-    console.log('⚠️  ВАЖЛИВО: Змініть пароль після першого входу!');
-    console.log('✅ ============================================\n');
-    
-    // Також створюємо системного адміна для сумісності
-    const systemAdminPassword = 'SystemAdmin123!';
-    const systemAdminPasswordHash = await bcrypt.hash(systemAdminPassword, 10);
-    
-    const systemAdmin = await prisma.user.upsert({
-      where: { email: 'system@bps.local' },
-      update: {},
-      create: {
-        email: 'system@bps.local',
-        passwordHash: systemAdminPasswordHash,
-        roleId: systemAdminRole.id,
-        isActive: true
-      }
-    });
-    
-    console.log('✅ System Admin created/updated: system@bps.local');
-    console.log('⚠️  Default password: SystemAdmin123!');
   }
 
   console.log('✅ Seed completed successfully!');

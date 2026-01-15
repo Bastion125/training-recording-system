@@ -73,7 +73,7 @@ const corsOptions = {
         callback(null, true);
       } else {
         // У production логуємо та блокуємо
-        console.warn(`CORS: Blocked origin: ${origin}. Allowed: ${JSON.stringify(allowedOrigins)}`);
+        logger.warn(`CORS: Blocked origin: ${origin}. Allowed: ${JSON.stringify(allowedOrigins)}`);
         callback(new Error(`Not allowed by CORS. Origin: ${origin}`));
       }
     }
@@ -107,12 +107,21 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Root endpoint for Railway health check
+// Root endpoint for Railway health check (має бути перед /api routes)
 app.get('/', (req, res) => {
   res.json({
     success: true,
     message: 'Training Recording System API',
     version: '1.0.0',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Додатковий root endpoint для Railway
+app.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Server is running',
     timestamp: new Date().toISOString()
   });
 });
@@ -151,7 +160,7 @@ app.get('/api/health/db', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Database health check error:', error);
+    logger.error('Database health check error:', error);
     res.status(500).json({
       success: false,
       message: 'Database connection failed',
@@ -161,7 +170,7 @@ app.get('/api/health/db', async (req, res) => {
   }
 });
 
-// API routes
+// API routes - мають бути після health checks
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', coursesRoutes);
 app.use('/api/personnel', personnelRoutes);
