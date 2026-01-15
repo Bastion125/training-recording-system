@@ -42,16 +42,16 @@ function getRuntimeConfig() {
 // Railway URL: https://training-recording-production.up.railway.app
 // RAILWAY_API_URL: https://training-recording-production.up.railway.app/api
 //
-// Детальна інструкція: див. backend/RAILWAY_DEPLOY.md
+// Детальна інструкція: див. RENDER_DEPLOY.md
 
-// Railway backend URL - оновіть на ваш фактичний Railway URL
-// Замініть 'ВАШ_RAILWAY_DOMAIN' на домен з Railway Settings → Networking
-const RAILWAY_API_URL = 'https://ВАШ_RAILWAY_DOMAIN.up.railway.app/api';
+// Render backend URL - оновіть на ваш фактичний Render URL
+// Замініть 'ВАШ_SERVICE_NAME' на назву вашого Render сервісу
+const RENDER_API_URL = 'https://ВАШ_SERVICE_NAME.onrender.com/api';
 
 const runtimeConfig = getRuntimeConfig();
 
 const API_BASE_URL = runtimeConfig.apiBaseUrl
-    || (IS_LOCALHOST ? 'http://localhost:3000/api' : (runtimeConfig.remoteApiUrl || RAILWAY_API_URL));
+    || (IS_LOCALHOST ? 'http://localhost:3000/api' : (runtimeConfig.remoteApiUrl || RENDER_API_URL));
 
 // Використовувати backend API (а не локальну SQLite в браузері)
 const USE_LOCAL_DB = runtimeConfig.useLocalDb ?? false;
