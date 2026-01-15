@@ -19,9 +19,10 @@ const practiceRoutes = require('./src/routes/practice');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Security middleware
+// Security middleware - налаштування для CORS
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginEmbedderPolicy: false // Дозволяємо embed ресурси
 }));
 
 // CORS configuration - має бути ПЕРЕД іншими middleware
@@ -34,31 +35,46 @@ const defaultAllowedOrigins = [
   'http://127.0.0.1:8080'
 ];
 
+// Отримуємо список дозволених origins
+const getAllowedOrigins = () => {
+  if (process.env.CORS_ORIGIN === '*') {
+    return true; // Дозволяємо всі origins
+  }
+  
+  const envOrigins = process.env.CORS_ORIGIN 
+    ? process.env.CORS_ORIGIN.split(',').map(o => o.trim()).filter(Boolean)
+    : [];
+  
+  return envOrigins.length > 0 
+    ? [...envOrigins, ...defaultAllowedOrigins]
+    : defaultAllowedOrigins;
+};
+
 const corsOptions = {
   origin: function (origin, callback) {
     // Дозволяємо запити без origin (наприклад, Postman, curl, server-to-server)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      return callback(null, true);
+    }
     
-    // Отримуємо список дозволених origins з env або використовуємо дефолтний
-    const envOrigins = process.env.CORS_ORIGIN 
-      ? process.env.CORS_ORIGIN.split(',').map(o => o.trim()).filter(Boolean)
-      : [];
+    const allowedOrigins = getAllowedOrigins();
     
-    const allowedOrigins = envOrigins.length > 0 
-      ? [...envOrigins, ...defaultAllowedOrigins]
-      : defaultAllowedOrigins;
+    // Якщо allowedOrigins === true, дозволяємо всі
+    if (allowedOrigins === true) {
+      return callback(null, true);
+    }
     
-    // Дозволяємо якщо origin в списку або якщо в env вказано '*'
-    if (process.env.CORS_ORIGIN === '*' || allowedOrigins.includes(origin)) {
+    // Перевіряємо чи origin в списку дозволених
+    if (Array.isArray(allowedOrigins) && allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      // У production логуємо, але не дозволяємо невідомі origins
-      if (process.env.NODE_ENV === 'production') {
-        console.warn(`CORS: Blocked origin: ${origin}`);
-        callback(new Error('Not allowed by CORS'));
-      } else {
-        // У development дозволяємо всі для зручності
+      // У development дозволяємо всі для зручності
+      if (process.env.NODE_ENV !== 'production') {
         callback(null, true);
+      } else {
+        // У production логуємо та блокуємо
+        console.warn(`CORS: Blocked origin: ${origin}. Allowed: ${JSON.stringify(allowedOrigins)}`);
+        callback(new Error(`Not allowed by CORS. Origin: ${origin}`));
       }
     }
   },
@@ -70,6 +86,7 @@ const corsOptions = {
   preflightContinue: false,
   maxAge: 86400 // 24 hours - кешування preflight запитів
 };
+
 app.use(cors(corsOptions));
 
 // Явна обробка OPTIONS запитів для CORS preflight (важливо для GitHub Pages)
