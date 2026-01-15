@@ -586,8 +586,9 @@ async function openKnowledgePDFMaterial(material) {
         } else {
             // Відносний шлях - додаємо базовий URL
             const USE_LOCAL_DB = typeof api !== 'undefined' && api.USE_LOCAL_DB;
-            const API_BASE_URL = 'http://localhost:3000/api';
-            pdfUrl = USE_LOCAL_DB ? material.file_path : `${API_BASE_URL.replace('/api', '')}${material.file_path}`;
+            // Беремо базовий URL з scripts/api.js (або fallback)
+            const baseUrl = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : 'http://localhost:3000/api';
+            pdfUrl = USE_LOCAL_DB ? material.file_path : `${baseUrl.replace('/api', '')}${material.file_path}`;
         }
     }
     
@@ -626,7 +627,8 @@ function openKnowledgeVideo(material) {
     // Відкриття відео в модальному вікні
     let videoUrl = null;
     const USE_LOCAL_DB = typeof api !== 'undefined' && api.USE_LOCAL_DB;
-    const API_BASE_URL = 'http://localhost:3000/api';
+    // Беремо базовий URL з scripts/api.js (або fallback)
+    const baseUrl = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : 'http://localhost:3000/api';
     
     // Визначаємо джерело відео
     if (material.file_data) {
@@ -636,7 +638,7 @@ function openKnowledgeVideo(material) {
             videoUrl = material.file_path;
         } else {
             // Відносний шлях
-            videoUrl = USE_LOCAL_DB ? material.file_path : `${API_BASE_URL.replace('/api', '')}${material.file_path}`;
+            videoUrl = USE_LOCAL_DB ? material.file_path : `${baseUrl.replace('/api', '')}${material.file_path}`;
         }
     }
     
@@ -977,8 +979,9 @@ async function uploadFile(file) {
     formData.append('file', file);
     
     const token = api.getToken();
-    const API_BASE_URL = 'http://localhost:3000/api';
-    const response = await fetch(`${API_BASE_URL}/files/upload`, {
+    // Беремо базовий URL з scripts/api.js (або fallback)
+    const baseUrl = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : 'http://localhost:3000/api';
+    const response = await fetch(`${baseUrl}/files/upload`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`

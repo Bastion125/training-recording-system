@@ -53,8 +53,8 @@ model Session {
   ipAddress    String?   @map("ip_address") @db.VarChar(45)
   userAgent    String?   @map("user_agent") @db.Text
   createdAt    DateTime  @default(now()) @map("created_at")
-  expiresAt    DateTime  @map("expires_at") @db.Timestamp
-  lastActivity DateTime  @default(now()) @map("last_activity") @db.Timestamp
+  expiresAt    DateTime  @map("expires_at")
+  lastActivity DateTime  @default(now()) @map("last_activity")
   
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   

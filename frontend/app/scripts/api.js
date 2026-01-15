@@ -18,7 +18,7 @@ const IS_LOCALHOST = IS_BROWSER && window.location.origin.includes('localhost');
 // Детальна інструкція: див. RAILWAY_DEPLOYMENT_GUIDE.md
 const API_BASE_URL = IS_LOCALHOST
     ? 'http://localhost:3000/api'
-    : 'https://REPLACE_WITH_RAILWAY_HOST/api';
+    : 'https://training-recording-system-production.up.railway.app/api';
 
 // Використовувати backend API (а не локальну SQLite в браузері)
 const USE_LOCAL_DB = false;

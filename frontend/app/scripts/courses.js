@@ -23,7 +23,9 @@ async function uploadFile(file) {
         const formData = new FormData();
         formData.append('file', file);
         const token = typeof api !== 'undefined' && api.getToken ? api.getToken() : null;
-        const response = await fetch('http://localhost:3000/api/files/upload', {
+        // Беремо базовий URL з scripts/api.js (або fallback)
+        const baseUrl = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : 'http://localhost:3000/api';
+        const response = await fetch(`${baseUrl}/files/upload`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`

@@ -1227,8 +1227,9 @@ async function openKnowledgePDFMaterial(material) {
                         pdfUrl = material.file_path;
                     }
                 } else {
-                    const API_BASE_URL = 'http://localhost:3000/api';
-                    pdfUrl = `${API_BASE_URL.replace('/api', '')}${material.file_path}`;
+                    // Беремо базовий URL з scripts/api.js (або fallback)
+                    const baseUrl = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : 'http://localhost:3000/api';
+                    pdfUrl = `${baseUrl.replace('/api', '')}${material.file_path}`;
                 }
             }
         }
@@ -1300,8 +1301,9 @@ function openKnowledgeVideoMaterial(material) {
         } else {
             // Відносний шлях
             const USE_LOCAL_DB = typeof api !== 'undefined' && api.USE_LOCAL_DB;
-            const API_BASE_URL = 'http://localhost:3000/api';
-            videoUrl = USE_LOCAL_DB ? material.file_path : `${API_BASE_URL.replace('/api', '')}${material.file_path}`;
+            // Беремо базовий URL з scripts/api.js (або fallback)
+            const baseUrl = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : 'http://localhost:3000/api';
+            videoUrl = USE_LOCAL_DB ? material.file_path : `${baseUrl.replace('/api', '')}${material.file_path}`;
         }
     }
     

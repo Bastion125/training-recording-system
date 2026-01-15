@@ -166,7 +166,6 @@ const getCourse = async (req, res) => {
     
     // Перевірка доступу
     let canAccess = true;
-    const userRole = req.user.role;
     
     // Адміни та інші ролі мають доступ до всіх курсів
     if (userRole !== 'User') {
