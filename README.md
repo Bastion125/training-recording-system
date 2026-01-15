@@ -118,13 +118,31 @@ CORS_ORIGIN=http://localhost:3000,http://localhost:8080
 6. Перевірка підключення до БД:
    ```bash
    # Після деплою перевірте:
+   curl https://your-railway-url.up.railway.app/api/health
    curl https://your-railway-url.up.railway.app/api/health/db
    ```
 
-7. Якщо БД не підключена, перевірте:
+7. Якщо БД не підключена або сервер не працює:
+   
+   **Перевірка Railway налаштувань:**
+   - Settings → Source: переконайтеся що підключений GitHub репозиторій
+   - Settings → Variables: перевірте всі змінні середовища
+   - Deployments → View Logs: перевірте логи на помилки
+   
+   **Перевірка БД:**
    - Чи правильно скопійовано `DATABASE_URL` з Railway PostgreSQL сервісу
-   - Чи застосовані міграції: Railway автоматично виконає `prisma migrate deploy` при деплої
-   - Логи Railway: Settings → Deployments → View Logs
+   - Формат: `postgresql://user:password@host:port/database?schema=public`
+   - Для Supabase: використайте `Connection Pooling` URL для `DATABASE_URL` та `Direct Connection` для `DIRECT_URL`
+   
+   **Автоматичні міграції:**
+   - Railway автоматично виконає `prisma generate` при build
+   - Додайте в Railway build command: `cd backend && npm install && npm run prisma:generate && npm run prisma:deploy`
+   - Або виконайте вручну після деплою через Railway CLI або консоль
+   
+   **Troubleshooting:**
+   - Якщо `/api/health` повертає 404: перевірте чи правильно налаштований `railway.json`
+   - Якщо `/api/health/db` повертає помилку: перевірте `DATABASE_URL` та логи
+   - Якщо CORS помилки: перевірте `CORS_ORIGIN` змінну
 
 ### 3. Міграції бази даних
 
