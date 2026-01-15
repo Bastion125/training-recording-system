@@ -36,16 +36,17 @@ function getRuntimeConfig() {
 // 
 // Інструкція:
 // 1. Після деплою на Railway, отримайте URL з Settings → Networking → Generate Domain
-// 2. Оновіть Railway URL нижче (без https:// та /api)
+// 2. Оновіть Railway URL нижче (повний URL з /api в кінці)
 // 
 // Приклад:
 // Railway URL: https://training-recording-production.up.railway.app
-// API_BASE_URL: https://training-recording-production.up.railway.app/api
+// RAILWAY_API_URL: https://training-recording-production.up.railway.app/api
 //
-// Детальна інструкція: див. RAILWAY_TROUBLESHOOTING.md
+// Детальна інструкція: див. backend/RAILWAY_DEPLOY.md
 
 // Railway backend URL - оновіть на ваш фактичний Railway URL
-const RAILWAY_API_URL = 'https://training-recording-system-production.up.railway.app/api';
+// Замініть 'ВАШ_RAILWAY_DOMAIN' на домен з Railway Settings → Networking
+const RAILWAY_API_URL = 'https://ВАШ_RAILWAY_DOMAIN.up.railway.app/api';
 
 const runtimeConfig = getRuntimeConfig();
 

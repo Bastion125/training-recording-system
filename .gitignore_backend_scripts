@@ -1,0 +1,3 @@
+# Додаткові файли для ігнорування (якщо потрібно)
+backend/.env
+backend/node_modules/
