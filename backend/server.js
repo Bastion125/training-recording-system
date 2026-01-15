@@ -25,20 +25,41 @@ app.use(helmet({
 }));
 
 // CORS configuration - має бути ПЕРЕД іншими middleware
+// Дозволені origins для production
+const defaultAllowedOrigins = [
+  'https://bastion125.github.io',
+  'http://localhost:3000',
+  'http://localhost:8080',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:8080'
+];
+
 const corsOptions = {
   origin: function (origin, callback) {
-    // Дозволяємо запити без origin (наприклад, Postman, curl)
+    // Дозволяємо запити без origin (наприклад, Postman, curl, server-to-server)
     if (!origin) return callback(null, true);
     
-    const allowedOrigins = process.env.CORS_ORIGIN 
-      ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
-      : ['*'];
+    // Отримуємо список дозволених origins з env або використовуємо дефолтний
+    const envOrigins = process.env.CORS_ORIGIN 
+      ? process.env.CORS_ORIGIN.split(',').map(o => o.trim()).filter(Boolean)
+      : [];
     
-    // Якщо '*' або origin в списку дозволених
-    if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+    const allowedOrigins = envOrigins.length > 0 
+      ? [...envOrigins, ...defaultAllowedOrigins]
+      : defaultAllowedOrigins;
+    
+    // Дозволяємо якщо origin в списку або якщо в env вказано '*'
+    if (process.env.CORS_ORIGIN === '*' || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(null, true); // Тимчасово дозволяємо всі для діагностики
+      // У production логуємо, але не дозволяємо невідомі origins
+      if (process.env.NODE_ENV === 'production') {
+        console.warn(`CORS: Blocked origin: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
+      } else {
+        // У development дозволяємо всі для зручності
+        callback(null, true);
+      }
     }
   },
   credentials: true,
@@ -50,7 +71,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Явна обробка OPTIONS запитів для CORS preflight
+// Явна обробка OPTIONS запитів для CORS preflight (важливо для GitHub Pages)
 app.options('*', cors(corsOptions));
 
 // Body parsing middleware

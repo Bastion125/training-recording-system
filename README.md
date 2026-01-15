@@ -109,9 +109,10 @@ CORS_ORIGIN=http://localhost:3000,http://localhost:8080
 4. Додайте змінні середовища в Railway:
    - `DATABASE_URL`
    - `DIRECT_URL` (рекомендовано)
-   - `JWT_SECRET` (створіть надійний ключ)
+   - `JWT_SECRET` (створіть надійний ключ, мінімум 32 символи)
    - `NODE_ENV=production`
    - `PORT` (Railway встановить автоматично)
+   - `CORS_ORIGIN=https://bastion125.github.io` (або список origins через кому)
 
 ### 3. Міграції бази даних
 
