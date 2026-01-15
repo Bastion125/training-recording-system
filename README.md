@@ -104,15 +104,27 @@ CORS_ORIGIN=http://localhost:3000,http://localhost:8080
 #### Railway (Production)
 
 1. Створіть проєкт на [Railway](https://railway.app)
-2. Додайте PostgreSQL сервіс (або використайте Supabase як зовнішню БД)
-3. Скопіюйте `DATABASE_URL` (і за можливості `DIRECT_URL`)
-4. Додайте змінні середовища в Railway:
-   - `DATABASE_URL`
-   - `DIRECT_URL` (рекомендовано)
-   - `JWT_SECRET` (створіть надійний ключ, мінімум 32 символи)
+2. Підключіть GitHub репозиторій до Railway (Settings → Connect GitHub)
+3. Додайте PostgreSQL сервіс (або використайте Supabase як зовнішню БД)
+4. Скопіюйте `DATABASE_URL` (і за можливості `DIRECT_URL`)
+5. Додайте змінні середовища в Railway (Settings → Variables):
+   - `DATABASE_URL` - URL підключення до PostgreSQL
+   - `DIRECT_URL` - пряме підключення (рекомендовано для Supabase)
+   - `JWT_SECRET` - надійний ключ (мінімум 32 символи)
    - `NODE_ENV=production`
-   - `PORT` (Railway встановить автоматично)
-   - `CORS_ORIGIN=https://bastion125.github.io` (або список origins через кому)
+   - `PORT` - Railway встановить автоматично
+   - `CORS_ORIGIN=https://bastion125.github.io` - дозволений origin для CORS
+
+6. Перевірка підключення до БД:
+   ```bash
+   # Після деплою перевірте:
+   curl https://your-railway-url.up.railway.app/api/health/db
+   ```
+
+7. Якщо БД не підключена, перевірте:
+   - Чи правильно скопійовано `DATABASE_URL` з Railway PostgreSQL сервісу
+   - Чи застосовані міграції: Railway автоматично виконає `prisma migrate deploy` при деплої
+   - Логи Railway: Settings → Deployments → View Logs
 
 ### 3. Міграції бази даних
 

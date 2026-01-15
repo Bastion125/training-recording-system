@@ -126,6 +126,41 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Database health check endpoint
+app.get('/api/health/db', async (req, res) => {
+  try {
+    const prisma = require('./src/config/database');
+    
+    // Простий запит до БД для перевірки підключення
+    await prisma.$queryRaw`SELECT 1 as test`;
+    
+    // Перевірка кількості таблиць
+    const tableCount = await prisma.$queryRaw`
+      SELECT COUNT(*) as count 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public'
+    `;
+    
+    res.json({
+      success: true,
+      message: 'Database connection successful',
+      database: {
+        connected: true,
+        tables: tableCount[0]?.count || 0,
+        timestamp: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Database health check error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Database connection failed',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', coursesRoutes);
