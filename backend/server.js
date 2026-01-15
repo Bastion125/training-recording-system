@@ -19,78 +19,64 @@ const practiceRoutes = require('./src/routes/practice');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Security middleware - налаштування для CORS
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" },
-  crossOriginEmbedderPolicy: false // Дозволяємо embed ресурси
-}));
-
-// CORS configuration - має бути ПЕРЕД іншими middleware
-// Дозволені origins для production
-const defaultAllowedOrigins = [
-  'https://bastion125.github.io',
-  'http://localhost:3000',
-  'http://localhost:8080',
-  'http://127.0.0.1:3000',
-  'http://127.0.0.1:8080'
-];
-
-// Отримуємо список дозволених origins
-const getAllowedOrigins = () => {
+// CORS configuration - має бути ПЕРЕД всіма іншими middleware
+// Отримуємо дозволені origins з env або використовуємо дефолтні
+const getCorsOrigins = () => {
   if (process.env.CORS_ORIGIN === '*') {
     return true; // Дозволяємо всі origins
   }
   
-  const envOrigins = process.env.CORS_ORIGIN 
-    ? process.env.CORS_ORIGIN.split(',').map(o => o.trim()).filter(Boolean)
-    : [];
+  const defaultOrigins = [
+    'https://bastion125.github.io',
+    'http://localhost:3000',
+    'http://localhost:8080',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:8080'
+  ];
   
-  return envOrigins.length > 0 
-    ? [...envOrigins, ...defaultAllowedOrigins]
-    : defaultAllowedOrigins;
+  if (process.env.CORS_ORIGIN) {
+    const envOrigins = process.env.CORS_ORIGIN.split(',').map(o => o.trim()).filter(Boolean);
+    return [...envOrigins, ...defaultOrigins];
+  }
+  
+  return defaultOrigins;
 };
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Дозволяємо запити без origin (наприклад, Postman, curl, server-to-server)
-    if (!origin) {
-      return callback(null, true);
-    }
-    
-    const allowedOrigins = getAllowedOrigins();
-    
-    // Якщо allowedOrigins === true, дозволяємо всі
-    if (allowedOrigins === true) {
-      return callback(null, true);
-    }
-    
-    // Перевіряємо чи origin в списку дозволених
-    if (Array.isArray(allowedOrigins) && allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      // У development дозволяємо всі для зручності
-      if (process.env.NODE_ENV !== 'production') {
-        callback(null, true);
-      } else {
-        // У production логуємо та блокуємо
-        logger.warn(`CORS: Blocked origin: ${origin}. Allowed: ${JSON.stringify(allowedOrigins)}`);
-        callback(new Error(`Not allowed by CORS. Origin: ${origin}`));
-      }
-    }
-  },
-  credentials: true,
+// Спрощена CORS конфігурація
+app.use(cors({
+  origin: getCorsOrigins(),
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  optionsSuccessStatus: 200,
-  preflightContinue: false,
-  maxAge: 86400 // 24 hours - кешування preflight запитів
-};
+  credentials: true
+}));
 
-app.use(cors(corsOptions));
+// Явна обробка OPTIONS запитів для CORS preflight (критично для GitHub Pages)
+app.options('*', cors());
 
-// Явна обробка OPTIONS запитів для CORS preflight (важливо для GitHub Pages)
-app.options('*', cors(corsOptions));
+// Додаткова явна обробка preflight запитів
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    const origin = req.headers.origin;
+    const allowedOrigins = getCorsOrigins();
+    
+    // Перевіряємо чи origin дозволений
+    if (allowedOrigins === true || (Array.isArray(allowedOrigins) && allowedOrigins.includes(origin))) {
+      res.header('Access-Control-Allow-Origin', origin || '*');
+      res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
+      res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With,Accept,Origin');
+      res.header('Access-Control-Allow-Credentials', 'true');
+      res.header('Access-Control-Max-Age', '86400');
+      return res.sendStatus(200);
+    }
+  }
+  next();
+});
+
+// Security middleware - після CORS
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginEmbedderPolicy: false
+}));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
