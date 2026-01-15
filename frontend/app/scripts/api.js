@@ -1,24 +1,28 @@
 // API Configuration
 // Визначаємо базовий URL для API в залежності від середовища
 const IS_BROWSER = typeof window !== 'undefined';
-const IS_LOCALHOST = IS_BROWSER && window.location.origin.includes('localhost');
+const IS_LOCALHOST = IS_BROWSER && (window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1'));
 
 // Локально використовуємо backend на 3000 порту, у проді - Railway backend
 // 
-// ⚠️ ВАЖЛИВО: Для деплою на Railway замініть REPLACE_WITH_RAILWAY_HOST на фактичний домен Railway сервісу
+// ⚠️ ВАЖЛИВО: Для деплою на Railway замініть на фактичний домен Railway сервісу
 // 
 // Інструкція:
 // 1. Після деплою на Railway, отримайте URL з Settings → Networking → Generate Domain
-// 2. Замініть REPLACE_WITH_RAILWAY_HOST на ваш Railway URL (без https:// та /api)
+// 2. Оновіть Railway URL нижче (без https:// та /api)
 // 
 // Приклад:
 // Railway URL: https://training-recording-production.up.railway.app
 // API_BASE_URL: https://training-recording-production.up.railway.app/api
 //
-// Детальна інструкція: див. RAILWAY_DEPLOYMENT_GUIDE.md
+// Детальна інструкція: див. RAILWAY_TROUBLESHOOTING.md
+
+// Railway backend URL - оновіть на ваш фактичний Railway URL
+const RAILWAY_API_URL = 'https://training-recording-system-production.up.railway.app/api';
+
 const API_BASE_URL = IS_LOCALHOST
     ? 'http://localhost:3000/api'
-    : 'https://training-recording-system-production.up.railway.app/api';
+    : RAILWAY_API_URL;
 
 // Використовувати backend API (а не локальну SQLite в браузері)
 const USE_LOCAL_DB = false;

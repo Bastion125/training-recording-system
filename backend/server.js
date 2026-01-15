@@ -17,15 +17,38 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Security middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
-// CORS configuration
+// CORS configuration - має бути ПЕРЕД іншими middleware
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || '*',
+  origin: function (origin, callback) {
+    // Дозволяємо запити без origin (наприклад, Postman, curl)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = process.env.CORS_ORIGIN 
+      ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+      : ['*'];
+    
+    // Якщо '*' або origin в списку дозволених
+    if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Тимчасово дозволяємо всі для діагностики
+    }
+  },
   credentials: true,
-  optionsSuccessStatus: 200
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  optionsSuccessStatus: 200,
+  preflightContinue: false
 };
 app.use(cors(corsOptions));
+
+// Явна обробка OPTIONS запитів для CORS preflight
+app.options('*', cors(corsOptions));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
