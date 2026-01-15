@@ -68,14 +68,11 @@ postgresql://training_user:password123@dpg-xxxxx-a.oregon-postgres.render.com/tr
 
 ### Приклад правильних значень:
 
-Якщо ваш Render Internal Database URL:
-```
-postgresql://training_user:password123@dpg-xxxxx-a.oregon-postgres.render.com/training_recording
-```
+**Ваші дані:**
+- `DATABASE_URL` = `postgresql://sql_ns68_user:Gdj0QaXbuOr5qfPKbEiNo3pC8ERPr6E2@dpg-d5khtr75r7bs73a9nkog-a/sql_ns68`
+- `DIRECT_URL` = `postgresql://sql_ns68_user:Gdj0QaXbuOr5qfPKbEiNo3pC8ERPr6E2@dpg-d5khtr75r7bs73a9nkog-a/sql_ns68`
 
-То обидві змінні мають бути **такі самі**:
-- `DATABASE_URL` = `postgresql://training_user:password123@dpg-xxxxx-a.oregon-postgres.render.com/training_recording`
-- `DIRECT_URL` = `postgresql://training_user:password123@dpg-xxxxx-a.oregon-postgres.render.com/training_recording`
+⚠️ **ВАЖЛИВО:** Обидві змінні мають бути **такі самі**!
 
 ## 📋 Чеклист змінних оточення
 
