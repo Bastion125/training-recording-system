@@ -36,5 +36,6 @@ const registerValidation = [
 router.post('/login', loginValidation, login);
 router.post('/register', registerValidation, register);
 router.get('/profile', authenticate, getProfile);
+router.get('/me', authenticate, getProfile); // Alias for frontend compatibility
 
 module.exports = router;
