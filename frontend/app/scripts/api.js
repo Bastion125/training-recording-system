@@ -45,7 +45,15 @@ function getRuntimeConfig() {
 // Детальна інструкція: див. RENDER_DEPLOY.md
 
 // Render backend URL - оновіть на ваш фактичний Render URL
-// Замініть 'ВАШ_SERVICE_NAME' на назву вашого Render сервісу
+// ⚠️ ВАЖЛИВО: Замініть 'ВАШ_SERVICE_NAME' на назву вашого Render сервісу
+// Приклад: якщо ваш сервіс називається 'training-recording-backend',
+// то URL буде: 'https://training-recording-backend.onrender.com/api'
+// 
+// Як знайти ваш Render URL:
+// 1. Відкрийте https://dashboard.render.com/
+// 2. Перейдіть до вашого Web Service
+// 3. Скопіюйте URL зверху (наприклад: https://training-recording-backend.onrender.com)
+// 4. Додайте /api в кінці
 const RENDER_API_URL = 'https://ВАШ_SERVICE_NAME.onrender.com/api';
 
 const runtimeConfig = getRuntimeConfig();
