@@ -51,22 +51,36 @@ git push origin main
    - **Start Command:** `npm start`
    - **Plan:** Free (або інший за потреби)
 
-### Крок 4: Налаштування змінних оточення
+### Крок 4: Налаштування змінних оточення ⚠️ КРИТИЧНО ВАЖЛИВО!
 
-У розділі **Environment Variables** додайте:
+У розділі **Environment Variables** додайте **ОБОВ'ЯЗКОВО**:
 
-**Обов'язкові:**
-- `DATABASE_URL` - Internal Database URL з PostgreSQL сервісу
-- `DIRECT_URL` - Internal Database URL (такий самий як DATABASE_URL)
-- `JWT_SECRET` - згенеруйте через: `openssl rand -base64 32`
-- `NODE_ENV` = `production`
-- `PORT` = `10000` (Render автоматично призначить, але можна вказати)
-- `CORS_ORIGIN` = `https://bastion125.github.io`
+**Обов'язкові змінні (мають бути встановлені ПЕРЕД деплоєм):**
 
-**Як отримати DATABASE_URL:**
-1. Перейдіть до PostgreSQL сервісу
-2. У розділі **Connections** знайдіть **Internal Database URL**
-3. Скопіюйте повний URL (виглядає як: `postgresql://user:password@host:port/database`)
+1. **`DATABASE_URL`** - Internal Database URL з PostgreSQL сервісу
+   - Перейдіть до PostgreSQL сервісу
+   - У розділі **Connections** знайдіть **Internal Database URL**
+   - Скопіюйте повний URL (виглядає як: `postgresql://user:password@host:port/database`)
+   - Вставте в поле `DATABASE_URL`
+
+2. **`DIRECT_URL`** - ⚠️ **ОБОВ'ЯЗКОВО!** Той самий URL що й DATABASE_URL
+   - Скопіюйте той самий Internal Database URL
+   - Вставте в поле `DIRECT_URL`
+   - **Це критично важливо для Prisma міграцій!**
+
+3. **`JWT_SECRET`** - згенеруйте через: `openssl rand -base64 32`
+   - Або використайте будь-який випадковий рядок
+
+4. **`NODE_ENV`** = `production`
+
+5. **`PORT`** = `10000` (Render автоматично призначить, але можна вказати)
+
+6. **`CORS_ORIGIN`** = `https://bastion125.github.io`
+
+**⚠️ УВАГА:** Якщо `DIRECT_URL` не встановлено, деплой не вдасться з помилкою:
+```
+Error: Environment variable not found: DIRECT_URL
+```
 
 ### Крок 5: Деплой
 
