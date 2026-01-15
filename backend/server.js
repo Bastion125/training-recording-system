@@ -146,7 +146,7 @@ app.get('/api/health/db', async (req, res) => {
       message: 'Database connection successful',
       database: {
         connected: true,
-        tables: tableCount[0]?.count || 0,
+        tables: Number(tableCount[0]?.count) || 0,
         timestamp: new Date().toISOString()
       }
     });
