@@ -1,4 +1,4 @@
-// Prisma Schema для MySQL (Railway)
+// Prisma Schema для PostgreSQL (Supabase/Railway)
 // TDD підхід - спочатку тести, потім реалізація
 
 generator client {
@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // Ролі користувачів
@@ -39,6 +40,7 @@ model User {
   role      Role       @relation(fields: [roleId], references: [id])
   personnel Personnel?
   sessions  Session[]
+  knowledgeMaterials KnowledgeMaterial[]
   
   @@index([email])
   @@index([roleId])
@@ -202,4 +204,50 @@ model Equipment {
   updatedAt    DateTime  @updatedAt @map("updated_at")
   
   @@map("equipment")
+}
+
+// Категорії Бази знань
+model KnowledgeCategory {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(255)
+  description String?  @db.Text
+  parentId    Int?     @map("parent_id")
+  orderIndex  Int      @default(0) @map("order_index")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  parent   KnowledgeCategory? @relation("KnowledgeCategoryTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children KnowledgeCategory[] @relation("KnowledgeCategoryTree")
+  materials KnowledgeMaterial[]
+
+  @@index([parentId])
+  @@index([orderIndex])
+  @@map("knowledge_categories")
+}
+
+// Матеріали Бази знань
+model KnowledgeMaterial {
+  id           Int      @id @default(autoincrement())
+  categoryId   Int      @map("category_id")
+  title        String   @db.VarChar(500)
+  content      String?  @db.Text
+  materialType String   @map("material_type") @db.VarChar(50) // text, pdf, video
+  filePath     String?  @map("file_path") @db.VarChar(1000)
+  fileSize     Int?     @map("file_size")
+  mimeType     String?  @map("mime_type") @db.VarChar(255)
+  avatarPath   String?  @map("avatar_path") @db.VarChar(1000)
+  createdBy    Int      @map("created_by")
+  isPublished  Boolean  @default(true) @map("is_published")
+  orderIndex   Int      @default(0) @map("order_index")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  category KnowledgeCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  author   User              @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+  @@index([createdBy])
+  @@index([isPublished])
+  @@index([orderIndex])
+  @@map("knowledge_materials")
 }

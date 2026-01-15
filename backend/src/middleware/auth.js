@@ -11,7 +11,7 @@ const authenticate = async (req, res, next) => {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         success: false,
-        message: 'Токен авторизації відсутній'
+        message: 'токен авторизації відсутній'
       });
     }
     

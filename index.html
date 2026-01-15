@@ -521,19 +521,25 @@
         // Ініціалізація при завантаженні
         window.addEventListener('load', async () => {
             try {
-                // Ініціалізуємо базу даних
-                if (typeof initDatabase === 'function') {
-                    const dbInitialized = await initDatabase();
-                    if (dbInitialized) {
-                        // Перевіряємо автентифікацію після ініціалізації БД
-                        if (typeof checkAuth === 'function') {
-                            checkAuth();
-                        } else {
-                            console.warn('checkAuth function not found');
-                        }
+                const useLocalDb = typeof window !== 'undefined' && window.USE_LOCAL_DB === true;
+
+                // Для локальної версії (SQL.js) спочатку ініціалізуємо БД.
+                // Для серверної версії (backend API) БД в браузері не потрібна.
+                if (useLocalDb) {
+                    if (typeof initDatabase === 'function') {
+                        const dbInitialized = await initDatabase();
+                        if (!dbInitialized) return;
+                    } else {
+                        console.error('initDatabase function not found');
+                        return;
                     }
+                }
+
+                // Перевіряємо автентифікацію
+                if (typeof checkAuth === 'function') {
+                    checkAuth();
                 } else {
-                    console.error('initDatabase function not found');
+                    console.warn('checkAuth function not found');
                 }
             } catch (error) {
                 console.error('Initialization error:', error);

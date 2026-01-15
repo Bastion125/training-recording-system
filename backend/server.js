@@ -12,6 +12,9 @@ const coursesRoutes = require('./src/routes/courses');
 const personnelRoutes = require('./src/routes/personnel');
 const crewsRoutes = require('./src/routes/crews');
 const equipmentRoutes = require('./src/routes/equipment');
+const knowledgeRoutes = require('./src/routes/knowledge');
+const filesRoutes = require('./src/routes/files');
+const practiceRoutes = require('./src/routes/practice');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -54,6 +57,10 @@ app.options('*', cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Static files (uploads)
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -86,6 +93,9 @@ app.use('/api/courses', coursesRoutes);
 app.use('/api/personnel', personnelRoutes);
 app.use('/api/crews', crewsRoutes);
 app.use('/api/equipment', equipmentRoutes);
+app.use('/api/knowledge', knowledgeRoutes);
+app.use('/api/files', filesRoutes);
+app.use('/api/practice', practiceRoutes);
 
 // Error handling middleware (must be last)
 app.use(prismaErrorHandler);
@@ -99,48 +109,50 @@ app.use((req, res) => {
   });
 });
 
-// Start server
-const server = app.listen(PORT, '0.0.0.0', () => {
-  logger.info(`🚀 Server is running on port ${PORT}`);
-  logger.info(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
-  logger.info(`🌐 Server listening on 0.0.0.0:${PORT}`);
-});
-
-// Handle server errors
-server.on('error', (error) => {
-  logger.error('Server error:', error);
-  if (error.code === 'EADDRINUSE') {
-    logger.error(`Port ${PORT} is already in use`);
-  }
-  process.exit(1);
-});
-
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  logger.info('SIGTERM signal received: closing HTTP server');
-  server.close(() => {
-    logger.info('HTTP server closed');
-    process.exit(0);
-  });
-});
-
-process.on('SIGINT', async () => {
-  logger.info('SIGINT signal received: closing HTTP server');
-  server.close(() => {
-    logger.info('HTTP server closed');
-    process.exit(0);
-  });
-});
-
-// Handle uncaught errors
-process.on('uncaughtException', (error) => {
-  logger.error('Uncaught Exception:', error);
-  process.exit(1);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-  logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
-});
-
 module.exports = app;
+
+// Start server only when running directly (not when imported by tests)
+if (require.main === module) {
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    logger.info(`🚀 Server is running on port ${PORT}`);
+    logger.info(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
+    logger.info(`🌐 Server listening on 0.0.0.0:${PORT}`);
+  });
+
+  // Handle server errors
+  server.on('error', (error) => {
+    logger.error('Server error:', error);
+    if (error.code === 'EADDRINUSE') {
+      logger.error(`Port ${PORT} is already in use`);
+    }
+    process.exit(1);
+  });
+
+  // Graceful shutdown
+  process.on('SIGTERM', async () => {
+    logger.info('SIGTERM signal received: closing HTTP server');
+    server.close(() => {
+      logger.info('HTTP server closed');
+      process.exit(0);
+    });
+  });
+
+  process.on('SIGINT', async () => {
+    logger.info('SIGINT signal received: closing HTTP server');
+    server.close(() => {
+      logger.info('HTTP server closed');
+      process.exit(0);
+    });
+  });
+
+  // Handle uncaught errors
+  process.on('uncaughtException', (error) => {
+    logger.error('Uncaught Exception:', error);
+    process.exit(1);
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    process.exit(1);
+  });
+}

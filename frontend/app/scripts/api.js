@@ -3,6 +3,33 @@
 const IS_BROWSER = typeof window !== 'undefined';
 const IS_LOCALHOST = IS_BROWSER && (window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1'));
 
+function parseBoolean(value) {
+    if (value === null || value === undefined) return null;
+    const v = String(value).trim().toLowerCase();
+    if (v === '1' || v === 'true' || v === 'yes' || v === 'y') return true;
+    if (v === '0' || v === 'false' || v === 'no' || v === 'n') return false;
+    return null;
+}
+
+function getRuntimeConfig() {
+    if (!IS_BROWSER) return {};
+
+    const cfg = (window.__APP_CONFIG__ && typeof window.__APP_CONFIG__ === 'object')
+        ? window.__APP_CONFIG__
+        : {};
+
+    const params = new URLSearchParams(window.location.search);
+    const ls = window.localStorage || null;
+
+    return {
+        apiBaseUrl: cfg.apiBaseUrl || (ls ? ls.getItem('API_BASE_URL') : null) || null,
+        remoteApiUrl: cfg.remoteApiUrl || (ls ? ls.getItem('REMOTE_API_URL') : null) || null,
+        useLocalDb: parseBoolean(params.get('localDb'))
+            ?? parseBoolean(cfg.useLocalDb)
+            ?? parseBoolean(ls ? ls.getItem('USE_LOCAL_DB') : null),
+    };
+}
+
 // Локально використовуємо backend на 3000 порту, у проді - Railway backend
 // 
 // ⚠️ ВАЖЛИВО: Для деплою на Railway замініть на фактичний домен Railway сервісу
@@ -20,12 +47,13 @@ const IS_LOCALHOST = IS_BROWSER && (window.location.origin.includes('localhost')
 // Railway backend URL - оновіть на ваш фактичний Railway URL
 const RAILWAY_API_URL = 'https://training-recording-system-production.up.railway.app/api';
 
-const API_BASE_URL = IS_LOCALHOST
-    ? 'http://localhost:3000/api'
-    : RAILWAY_API_URL;
+const runtimeConfig = getRuntimeConfig();
+
+const API_BASE_URL = runtimeConfig.apiBaseUrl
+    || (IS_LOCALHOST ? 'http://localhost:3000/api' : (runtimeConfig.remoteApiUrl || RAILWAY_API_URL));
 
 // Використовувати backend API (а не локальну SQLite в браузері)
-const USE_LOCAL_DB = false;
+const USE_LOCAL_DB = runtimeConfig.useLocalDb ?? false;
 
 // API Service
 const api = {
