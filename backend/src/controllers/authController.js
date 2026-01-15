@@ -2,6 +2,7 @@ const prisma = require('../config/database');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
+const logger = require('../config/logger');
 
 /**
  * Логін користувача
@@ -61,7 +62,7 @@ const login = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
+    logger.error('Login error:', error);
     res.status(500).json({
       success: false,
       message: 'Помилка входу'
@@ -138,7 +139,7 @@ const register = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Register error:', error);
+    logger.error('Register error:', error);
     res.status(500).json({
       success: false,
       message: 'Помилка реєстрації'
@@ -181,7 +182,7 @@ const getProfile = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get profile error:', error);
+    logger.error('Get profile error:', error);
     res.status(500).json({
       success: false,
       message: 'Помилка отримання профілю'

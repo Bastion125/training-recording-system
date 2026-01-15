@@ -4,6 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { authenticate } = require('../middleware/auth');
+const logger = require('../config/logger');
 
 // Створюємо директорію для завантажених файлів
 const uploadsDir = path.join(__dirname, '../../uploads');
@@ -60,7 +61,7 @@ router.post('/upload', upload.single('file'), (req, res) => {
       mime_type: req.file.mimetype,
     });
   } catch (error) {
-    console.error('File upload error:', error);
+    logger.error('File upload error:', error);
     res.status(500).json({
       success: false,
       message: 'Помилка завантаження файлу',

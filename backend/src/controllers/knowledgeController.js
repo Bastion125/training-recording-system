@@ -1,5 +1,6 @@
 const prisma = require('../config/database');
 const { validationResult } = require('express-validator');
+const logger = require('../config/logger');
 
 /**
  * GET /api/knowledge/categories
@@ -12,7 +13,7 @@ const getKnowledgeCategories = async (req, res) => {
 
     res.json({ success: true, data: categories });
   } catch (error) {
-    console.error('Get knowledge categories error:', error);
+    logger.error('Get knowledge categories error:', error);
     res.status(500).json({
       success: false,
       message: 'Помилка отримання категорій',
@@ -57,7 +58,7 @@ const createKnowledgeCategory = async (req, res) => {
 
     res.status(201).json({ success: true, data: category });
   } catch (error) {
-    console.error('Create knowledge category error:', error);
+    logger.error('Create knowledge category error:', error);
     res.status(500).json({
       success: false,
       message: 'Помилка створення категорії',
@@ -94,7 +95,7 @@ const getKnowledgeMaterials = async (req, res) => {
 
     res.json({ success: true, data: materials });
   } catch (error) {
-    console.error('Get knowledge materials error:', error);
+    logger.error('Get knowledge materials error:', error);
     res.status(500).json({
       success: false,
       message: 'Помилка отримання матеріалів',
@@ -152,7 +153,7 @@ const createKnowledgeMaterial = async (req, res) => {
 
     res.status(201).json({ success: true, data: material });
   } catch (error) {
-    console.error('Create knowledge material error:', error);
+    logger.error('Create knowledge material error:', error);
     res.status(500).json({
       success: false,
       message: 'Помилка створення матеріалу',
@@ -218,7 +219,7 @@ const updateKnowledgeMaterial = async (req, res) => {
 
     res.json({ success: true, data: updated });
   } catch (error) {
-    console.error('Update knowledge material error:', error);
+    logger.error('Update knowledge material error:', error);
     res.status(500).json({
       success: false,
       message: 'Помилка оновлення матеріалу',
